@@ -7,7 +7,7 @@ load_dotenv()
 class Config:
     """Configuración base de la aplicación."""
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'super-secret')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     # Configuración base de PostgreSQL
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
@@ -15,7 +15,7 @@ class DevelopmentConfig(Config):
     """Configuración para desarrollo."""
     DEBUG = True
     # Usar la misma base de datos que en producción pero con prefijo dev_
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/autolavado')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 class ProductionConfig(Config):
     """Configuración para producción."""
@@ -24,14 +24,25 @@ class ProductionConfig(Config):
     if not Config.SQLALCHEMY_DATABASE_URI:
         raise ValueError("DATABASE_URL debe estar configurada en producción")
 
+class TestingConfig(Config):
+    """Configuración para pruebas."""
+    DEBUG = True
+    TESTING = True
+    # Usar SQLite en memoria para las pruebas
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    # Desactivar CSRF para las pruebas
+    WTF_CSRF_ENABLED = False
+
 # Diccionario para mapear entornos a configuraciones
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'testing': TestingConfig,
     'default': DevelopmentConfig
 }
 
 # Obtener la configuración basada en el entorno
-def get_config():
-    env = os.getenv('FLASK_ENV', 'default')
-    return config.get(env, config['default']) 
+def get_config(config_name=None):
+    if config_name is None:
+        config_name = os.getenv('FLASK_ENV', 'default')
+    return config.get(config_name, config['default']) 
