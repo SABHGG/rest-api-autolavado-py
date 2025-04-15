@@ -1,9 +1,0 @@
-POST https://5000-idx-restapi-autolavado-1744511868071.cluster-vyr53kd25jc2yvngldrwyq6zc4.cloudworkstations.dev/auth/register
-Content-Type: application/json
-
-{
-  "username": "SABH",
-  "email": "sabh@gmail.com",
-  "telefono": 3025338645,
-  "password": "123456789"
-}
