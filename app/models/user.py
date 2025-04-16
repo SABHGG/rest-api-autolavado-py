@@ -17,8 +17,8 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(162) , nullable=False)
     role = db.Column(db.String(20), nullable=False, default=RoleEnum.client.value)
-    created_at = db.Column(db.String(32), default=lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    updated_at = db.Column(db.String(32), default=lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S'), onupdate=lambda: datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     def __init__(self, **kwargs):
         if 'role' in kwargs and isinstance(kwargs['role'], RoleEnum):
