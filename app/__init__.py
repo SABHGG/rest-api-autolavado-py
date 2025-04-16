@@ -1,4 +1,5 @@
 from flask import Flask, Blueprint, request, jsonify
+from flask_cors import CORS
 from flask.json.provider import DefaultJSONProvider
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
@@ -35,6 +36,7 @@ def create_app(config_name=None):
 
 
     app = Flask(__name__)
+    CORS(app)
     app.json_provider_class = CustomJSONProvider
     app.json = app.json_provider_class(app)
     # Cargar la configuración
