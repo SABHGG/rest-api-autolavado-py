@@ -1,9 +1,5 @@
 from marshmallow import Schema, fields, validate
-
-class ServiceSchema(Schema):  # Assuming this exists or will be created
-    id = fields.Int(dump_only=True)
-    name = fields.Str(required=True)
-    price = fields.Float(required=True)
+from app.schemas import ServiceSchema
 
 class AppointmentSchema(Schema):
     id = fields.Int(dump_only=True)
