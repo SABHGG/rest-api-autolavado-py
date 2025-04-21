@@ -29,6 +29,23 @@ class AppointmentController:
 
         return appointment_schema.dump(new_appointment), 201
 
+    
+    @staticmethod
+    def get_appointments():
+        MAX_LIMIT = 50
+        limit = min(request.args.get('limit', 10, type=int), MAX_LIMIT)
+        offset = request.args.get('offset', 0, type=int)
+        status = request.args.get('status', type=str)
+        
+        if g.current_role == RoleEnum.client:
+            appointments = Appointment.query.filter_by(user_id=g.current_user.id, status=status).offset(offset).limit(limit).all()
+        elif g.current_role == RoleEnum.employee:
+            appointments = Appointment.query.filter_by(employee_id=g.current_user.id, status=status).offset(offset).limit(limit).all()
+        else:
+            appointments = Appointment.query.offset(offset).limit(limit).all()
+
+        return appointments_schema.dump(appointments), 200
+
     @staticmethod
     def get_appointment(appointment_id):
         appointment = Appointment.query.get_or_404(appointment_id)

@@ -1,6 +1,13 @@
 from app import db
 from datetime import datetime
 import uuid
+import enum
+
+class AppointmentStatus(enum.Enum):
+    pendiente = "pendiente"
+    en_progreso = "en_progreso"
+    completada = "completada"
+    cancelada = "cancelada"
 
 class Appointment(db.Model):
     __tablename__ = 'appointments'
@@ -11,7 +18,7 @@ class Appointment(db.Model):
     user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='pending')
+    status = db.Column(db.Enum(AppointmentStatus), nullable=False, default=AppointmentStatus.pendiente)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     vehicle = db.relationship('Vehicle', backref=db.backref('appointments', lazy=True))
