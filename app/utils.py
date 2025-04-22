@@ -12,6 +12,7 @@ def require_auth():
         def wrapper(*args, **kwargs):
             user_id = get_jwt_identity()
             g.current_user = user_id
+            g.current_role = get_jwt().get("role")
             return func(*args, **kwargs)
         return wrapper
     return decorator

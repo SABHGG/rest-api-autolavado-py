@@ -15,21 +15,7 @@ message_translations = {
 }
 
 class AppointmentController:
-    @staticmethod
-    def create_appointment(data):
-        data['client_id'] = g.current_user
-        
-        errors = appointment_schema.validate(data)
-        if errors:
-            return errors, 400
 
-        new_appointment = appointment_schema.load(data, session=db.session)
-        db.session.add(new_appointment)
-        db.session.commit()
-
-        return appointment_schema.dump(new_appointment), 201
-
-    
     @staticmethod
     def get_appointments():
         MAX_LIMIT = 50
