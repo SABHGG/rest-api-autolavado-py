@@ -1,0 +1,245 @@
+openapi: 3.0.0
+info:
+  title: Vehicle Management API
+  version: 1.0.0
+  description: API for managing vehicles, users, appointments, and services.
+  security:
+    - BearerAuth: []
+paths:
+  /users:
+    get:
+      summary: Get all users
+      description: Retrieve a list of all users. Accessible only to 'admin'.
+      responses:
+        '200':
+          description: Successful response
+      security:
+        - BearerAuth: ['admin']
+    post:
+      summary: Create a new user
+      description: Create a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      security:
+        - BearerAuth: ['admin']
+  /users/{id}:
+    get:
+      summary: Get a user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user
+          schema:
+            type: integer
+      description: Retrieve a user by their ID. Accessible to 'admin' or the user themselves.
+      responses:
+        '200':
+          content: { 'application/json': { schema: { '$ref': '#/components/schemas/User' } } }
+          description: Successful response
+    put:
+      summary: Update a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user
+          schema:
+            type: integer
+      description: Update a user's information. Accessible to 'admin' or the user themselves.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      summary: Delete a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user to delete.
+          schema:
+            type: integer
+      description: Delete a user. Accessible only to 'admin or the user themselves'.
+      responses:
+        '204':
+          description: User deleted
+      security:
+        - BearerAuth: ['admin']
+  /vehicles:
+    get:
+      summary: Get all vehicles
+      description: Retrieve a list of all vehicles. Accessible to 'admin', 'employee', or the vehicle owner ('client').
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+      security:
+        - BearerAuth: ['admin', 'employee', 'client']
+    post:
+      summary: Create a new vehicle
+      description: Create a new vehicle. Accessible to 'admin' or 'client'.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+      responses:
+        '201':
+          description: Vehicle created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+      security:
+        - BearerAuth: ['admin', 'client']
+  /vehicles/{id}:
+    get:
+      summary: Get a vehicle by ID
+      responses:
+        '200':
+          description: Successful response
+    put:
+      summary: Update a vehicle
+      responses:
+        '200':
+          description: Vehicle updated
+    delete:
+      summary: Delete a vehicle
+      responses:
+        '204':
+          description: Vehicle deleted
+  /services:
+    get:
+      summary: Get all services
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create a new service
+      responses:
+        '201':
+          description: Service created
+  /services/{id}:
+    get:
+      summary: Get a service by ID
+      responses:
+        '200':
+          description: Successful response
+    put:
+      summary: Update a service
+      responses:
+        '200':
+          description: Service updated
+    delete:
+      summary: Delete a service
+      responses:
+        '204':
+          description: Service deleted
+  /appointments:
+    get:
+      summary: Get all appointments
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create a new appointment
+      responses:
+        '201':
+          description: Appointment created
+  /appointments/{id}:
+    get:
+      summary: Get an appointment by ID
+      responses:
+        '200':
+          description: Successful response
+    put:
+      summary: Update an appointment
+      responses:
+        '200':
+          description: Appointment updated
+    delete:
+      summary: Delete an appointment
+      responses:
+        '204':
+          description: Appointment deleted
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:  
+    User:  
+      type: object  
+      properties:  
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    Vehicle:  
+      type: object  
+      properties:  
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        user_id:  
+          type: integer  
+        id:  
+          type: integer  
+    Service:  
+      type: object  
+      properties:  
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        id:  
+          type: integer  
+    Appointment:  
+      type: object  
+      properties:  
+        vehicle_id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [scheduled, in_progress, completed, canceled]
+        services:
+          type: array
+          items:  
+            $ref: '#/components/schemas/Service'

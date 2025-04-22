@@ -1,6 +1,7 @@
 from flask import Flask, Blueprint, request, jsonify
 from flask_cors import CORS
 from flask.json.provider import DefaultJSONProvider
+from flask_swagger_ui import get_swaggerui_blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 import os
@@ -51,6 +52,14 @@ def create_app(config_name=None):
 
     # Register blueprints
     register_blueprints(app)
+    SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI
+    API_URL = '/static/swagger.yml'  # Our API spec
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+    )
+    # Configure Swagger UI
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     # Error handling for common errors (example)
     @app.errorhandler(400)
@@ -81,4 +90,5 @@ def register_blueprints(app):
     app.register_blueprint(appointments_bp, url_prefix='/appointments')
     app.register_blueprint(services_bp, url_prefix='/services')
     app.register_blueprint(reports_bp, url_prefix='/reports')
+    
 
