@@ -1,0 +1,19 @@
+name: ruff format
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ruff:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: ruff-format
+        uses: astral-sh/ruff-action@v3.3.1
+        with:
+          args: "format --check --diff"
