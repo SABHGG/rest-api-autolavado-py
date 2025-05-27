@@ -5,6 +5,7 @@ from app.schemas import ServiceSchema
 service_schema = ServiceSchema()
 services_schema = ServiceSchema(many=True)
 
+
 class ServiceController:
     @staticmethod
     def create_service(data):
@@ -13,8 +14,10 @@ class ServiceController:
             return errors, 400
 
         new_service = Service(
-            name=data['name'],
-            price=data['price']
+            name=data["name"],
+            price=data["price"],
+            description=data.get("description", ""),
+            duration=data.get("duration"),
         )
         db.session.add(new_service)
         db.session.commit()
@@ -23,4 +26,4 @@ class ServiceController:
     @staticmethod
     def get_services():
         services = Service.query.all()
-        return services_schema.dump(services) 
+        return services_schema.dump(services)
