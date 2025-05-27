@@ -14,23 +14,29 @@ def require_auth():
             g.current_user = user_id
             g.current_role = get_jwt().get("role")
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 # Middleware for role-based authorization
-def require_role(required_role):
+def require_role(*required_role):
     def decorator(func):
         @functools.wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
             claims = get_jwt()
             role = claims.get("role")
-            if role == required_role:
+            if role in required_role:
                 return func(*args, **kwargs)
+
             return jsonify({"message": "Forbidden: Insufficient permissions"}), 403
+
         return wrapper
+
     return decorator
+
 
 def send_email(to, subject, body):
     """
