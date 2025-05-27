@@ -1,21 +1,20 @@
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import get_jwt_identity
-from app.utils import require_auth
+from flask import Blueprint, jsonify
+
 from app.controllers.vehicle_controller import VehicleController
+from app.utils import require_auth
 
-vehicles_bp = Blueprint('vehicles', __name__)
+vehicles_bp = Blueprint("vehicles", __name__)
 
-@vehicles_bp.route('/', methods=['POST'])
+
+@vehicles_bp.route("/", methods=["POST"])
 @require_auth()
 def register_vehicle():
-    current_user_id = get_jwt_identity()
-    data = request.get_json()
-    result, status_code = VehicleController.register_vehicle(current_user_id, data)
+    result, status_code = VehicleController.register_vehicle()
     return jsonify(result), status_code
 
-@vehicles_bp.route('/', methods=['GET'])
+
+@vehicles_bp.route("/", methods=["GET"])
 @require_auth()
 def get_user_vehicles():
-    current_user_id = get_jwt_identity()
-    vehicles = VehicleController.get_user_vehicles(current_user_id)
+    vehicles = VehicleController.get_user_vehicles()
     return jsonify(vehicles)
