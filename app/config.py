@@ -26,9 +26,10 @@ class ProductionConfig(Config):
     """Configuración para producción."""
 
     DEBUG = False
-    # Para producción, requerimos la URL de la base de datos
-    if not Config.SQLALCHEMY_DATABASE_URI:
-        raise ValueError("DATABASE_URL debe estar configurada en producción")
+    def __init__(self):
+        # Verificar que la URL de la base de datos esté configurada
+        if not Config.SQLALCHEMY_DATABASE_URI:
+            raise ValueError("DATABASE_URL debe estar configurada en producción")
 
 
 class TestingConfig(Config):
