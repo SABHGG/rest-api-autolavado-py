@@ -15,10 +15,12 @@ jwt = JWTManager()
 def init_db(app):
     with app.app_context():
         try:
+            import app.models
+
             # Verificar conexión
-            db.session.execute(text("SELECT 1"))
-            print("✅ Conexión a la base de datos exitosa")
-            # Crear todas las tablas
+            data = db.session.execute(text("SELECT NOW()"))
+            print(f" ✅ Conexión a la base de datos exitosa: {data.scalar()}")
+            # Crear todas las tablas   Conexión a la base de datos exitosa
             db.create_all()
         except Exception:
             print("❌ Error al inicializar la base de datos")
@@ -47,6 +49,11 @@ def create_app(config_name=None):
 
     # Inicializar la base de datos
     init_db(app)
+
+    # rute for health check
+    @app.route("/health", methods=["GET"])
+    def health_check():
+        return jsonify({"status": "ok"}), 200
 
     # Register blueprints
     register_blueprints(app)

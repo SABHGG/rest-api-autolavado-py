@@ -37,7 +37,7 @@ class TestingConfig(Config):
     DEBUG = True
     TESTING = True
     # Usar SQLite en memoria para las pruebas
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_URL")
     # Desactivar CSRF para las pruebas
     WTF_CSRF_ENABLED = False
 

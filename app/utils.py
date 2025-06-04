@@ -2,6 +2,8 @@
 import functools
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from flask import jsonify, g
+from sqlalchemy.exc import SQLAlchemyError
+from app import db
 
 
 # Middleware for authentication
@@ -36,6 +38,19 @@ def require_role(*required_role):
         return wrapper
 
     return decorator
+
+
+def safe_controller(fn):
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {"message": "Database error", "details": str(e)}, 500
+        except Exception as e:
+            return {"message": "Unexpected error", "details": str(e)}, 500
+
+    return wrapper
 
 
 def send_email(to, subject, body):
