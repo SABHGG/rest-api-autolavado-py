@@ -25,7 +25,7 @@ def db_session(app):
     db.session = session
 
     yield session
-    
+
     transaction.rollback()
     connection.close()
     session.remove()

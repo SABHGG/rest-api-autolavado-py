@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def auth_token(client):
     # Registrar usuario
@@ -22,6 +23,7 @@ def auth_token(client):
     )
     return response.get_json()["access_token"]
 
+
 def test_register_vehicle(client, auth_token):
     headers = {"Authorization": f"Bearer {auth_token}"}
     response = client.post(
@@ -31,15 +33,16 @@ def test_register_vehicle(client, auth_token):
             "brand": "Ford",
             "model": "Raptor 2022",
             "color": "verde",
-            "vehicle_type": "coche"
+            "vehicle_type": "coche",
         },
-        headers=headers
+        headers=headers,
     )
     assert response.status_code == 201
     data = response.get_json()
     assert data["brand"] == "Ford"
     assert data["model"] == "Raptor 2022"
     assert data["plate"] == "ABC223"
+
 
 def test_register_vehicle_invalid_data(client, auth_token):
     headers = {"Authorization": f"Bearer {auth_token}"}
@@ -50,13 +53,14 @@ def test_register_vehicle_invalid_data(client, auth_token):
             # "brand": "Ford", -- campo faltante
             "model": "Raptor 2022",
             "color": "verde",
-            "vehicle_type": "coche"
+            "vehicle_type": "coche",
         },
-        headers=headers
+        headers=headers,
     )
     assert response.status_code == 400
     data = response.get_json()
     assert "brand" in data
+
 
 def test_get_user_vehicles(client, auth_token):
     headers = {"Authorization": f"Bearer {auth_token}"}
@@ -67,15 +71,15 @@ def test_get_user_vehicles(client, auth_token):
             "brand": "Toyota",
             "model": "Party",
             "color": "verde",
-            "vehicle_type": "coche"
+            "vehicle_type": "coche",
         },
         {
             "plate": "XYZ789",
             "brand": "Honda",
             "model": "civic",
             "color": "verde",
-            "vehicle_type": "coche"
-        }
+            "vehicle_type": "coche",
+        },
     ]
     for vehicle in vehicles:
         client.post("/vehicles/", json=vehicle, headers=headers)
@@ -85,9 +89,12 @@ def test_get_user_vehicles(client, auth_token):
     assert response.status_code == 200
     data = response.get_json()
     assert len(data) == 3
-    assert data[0]["brand"] == "Ford" # Verifica el vehículo registrado en test_register_vehicle
+    assert (
+        data[0]["brand"] == "Ford"
+    )  # Verifica el vehículo registrado en test_register_vehicle
     assert data[1]["brand"] == "Toyota"
     assert data[2]["brand"] == "Honda"
+
 
 def test_register_vehicle_unauthorized(client):
     # Intentar registrar vehículo sin token
@@ -98,7 +105,7 @@ def test_register_vehicle_unauthorized(client):
             "model": "Corolla",
             "year": 2020,
             "color": "Rojo",
-            "license_plate": "ABC123"
-        }
+            "license_plate": "ABC123",
+        },
     )
-    assert response.status_code == 401 
+    assert response.status_code == 401
