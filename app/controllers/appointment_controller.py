@@ -76,7 +76,9 @@ class AppointmentController:
     @safe_controller
     def assign_services_to_employee(appointment_id):
         # Obtener todos los servicios de la cita
-        services = AppointmentService.query.filter_by(appointment_id=appointment_id).all()
+        services = AppointmentService.query.filter_by(
+            appointment_id=appointment_id
+        ).all()
 
         if not services:
             return {"message": "Appointment or services not found"}, 404
@@ -90,9 +92,8 @@ class AppointmentController:
             service.employee_id = g.current_user
 
         db.session.commit()
-        
-        return {"message": "Services assigned successfully"}, 200
 
+        return {"message": "Services assigned successfully"}, 200
 
     @staticmethod
     @safe_controller

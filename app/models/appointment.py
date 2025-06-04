@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, timedelta
 import enum
 
 
@@ -17,10 +17,8 @@ class Appointment(db.Model):
     vehicle_id = db.Column(
         db.String(10), db.ForeignKey("vehicles.plate"), nullable=False
     )
-    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
     user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
-    start_time = db.Column(db.DateTime, nullable=False)
-    end_time = db.Column(db.DateTime, nullable=False)
+    appointment_time = db.Column(db.DateTime, nullable=False)
     status = db.Column(
         db.Enum(AppointmentStatus), nullable=False, default=AppointmentStatus.pendiente
     )
@@ -28,5 +26,8 @@ class Appointment(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     vehicle = db.relationship("Vehicle", backref=db.backref("appointments", lazy=True))
-    service = db.relationship("Service", backref=db.backref("appointments", lazy=True))
     user = db.relationship("User", backref=db.backref("appointments", lazy=True))
+
+    @property
+    def end_time(self):
+        return self.appointment_time + timedelta(minutes=30)

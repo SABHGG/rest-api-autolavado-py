@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify
 from app.utils import require_auth, require_role
 from app.controllers.appointment_controller import AppointmentController
 
@@ -27,21 +27,22 @@ def get_appointment(appointment_id):
     return jsonify(result), status_code
 
 
-@appointments_bp.route("/<int:appointment_id>/assign", methods=["PUT"])
+@appointments_bp.route("/<int:appointment_id>/assign", methods=["PATCH"])
 @require_auth()
 @require_role("admin", "employee")
 def assign_appointment(appointment_id):
-    result, status_code = AppointmentController.assign_appointment(appointment_id)
+    result, status_code = AppointmentController.assign_services_to_employee(
+        appointment_id
+    )
     return jsonify(result), status_code
 
 
-@appointments_bp.route("/<int:appointment_id>/status", methods=["PUT"])
+@appointments_bp.route("/<int:appointment_id>/status", methods=["PATCH"])
 @require_auth()
 @require_role("admin", "employee")
 def update_appointment_status(appointment_id):
-    data = request.get_json()
     result, status_code = AppointmentController.update_appointment_status(
-        appointment_id, data
+        appointment_id
     )
     return jsonify(result), status_code
 
@@ -50,6 +51,5 @@ def update_appointment_status(appointment_id):
 @require_auth()
 @require_role("client", "admin", "employee")
 def update_appointment(appointment_id):
-    data = request.get_json()
-    result, status_code = AppointmentController.update_appointment(appointment_id, data)
+    result, status_code = AppointmentController.update_appointment(appointment_id)
     return jsonify(result), status_code

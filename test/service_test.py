@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def admin_token(client):
     # Login con el administrador existente
@@ -12,6 +13,7 @@ def admin_token(client):
     )
     return response.get_json()["access_token"]
 
+
 def test_create_service(client, admin_token):
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = client.post(
@@ -20,14 +22,15 @@ def test_create_service(client, admin_token):
             "name": "Lavado Básico",
             "price": 50.00,
             "description": "Lavado exterior básico",
-            "duration": 30
+            "duration": 30,
         },
-        headers=headers
+        headers=headers,
     )
     assert response.status_code == 201
     data = response.get_json()
     assert data["name"] == "Lavado Básico"
     assert data["price"] == 50.00
+
 
 def test_create_service_invalid_data(client, admin_token):
     headers = {"Authorization": f"Bearer {admin_token}"}
@@ -36,13 +39,14 @@ def test_create_service_invalid_data(client, admin_token):
         json={
             "name": "Lavado Básico",
             # Falta el precio requerido
-            "description": "Lavado exterior básico"
+            "description": "Lavado exterior básico",
         },
-        headers=headers
+        headers=headers,
     )
     assert response.status_code == 400
     data = response.get_json()
     assert data["price"] == ["Missing data for required field."]
+
 
 def test_get_services(client, admin_token):
     headers = {"Authorization": f"Bearer {admin_token}"}
@@ -52,14 +56,14 @@ def test_get_services(client, admin_token):
             "name": "Lavado Básico",
             "price": 50.00,
             "description": "Lavado exterior básico",
-            "duration": 30
+            "duration": 30,
         },
         {
             "name": "Lavado Premium",
             "price": 100.00,
             "description": "Lavado completo",
-            "duration": 60
-        }
+            "duration": 60,
+        },
     ]
     for service in services:
         client.post("/services/", json=service, headers=headers)
@@ -72,6 +76,7 @@ def test_get_services(client, admin_token):
     assert data[0]["name"] == "Lavado Exterior Básico"
     assert data[-1]["name"] == "Lavado Premium"
 
+
 def test_create_service_unauthorized(client):
     # Intentar crear servicio sin token de admin
     response = client.post(
@@ -80,7 +85,7 @@ def test_create_service_unauthorized(client):
             "name": "Lavado Básico",
             "price": 50.00,
             "description": "Lavado exterior básico",
-            "duration": 30
-        }
+            "duration": 30,
+        },
     )
-    assert response.status_code == 401 
+    assert response.status_code == 401

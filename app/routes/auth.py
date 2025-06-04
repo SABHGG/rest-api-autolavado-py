@@ -8,8 +8,6 @@ auth_bp = Blueprint("auth", __name__)
 def register():
     data = request.get_json()
     result, status_code = AuthController.register(data)
-    print(result)
-    print(status_code)
     return jsonify(result), status_code
 
 
