@@ -1,5 +1,6 @@
 from datetime import datetime
 from app.models import Appointment
+from app.utils import safe_controller
 
 messages = {
     "Unauthorized": "No autorizado",
@@ -10,6 +11,7 @@ messages = {
 
 class ReportController:
     @staticmethod
+    @safe_controller
     def generate_sales_report(start_date_str, end_date_str):
         if not start_date_str or not end_date_str:
             return {"message": messages["Please provide start_date and end_date"]}, 400

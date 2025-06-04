@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token
 from app import db
 from app.models.user import User, RoleEnum
 from app.schemas import UserSchema
+from app.utils import safe_controller
 
 user_schema = UserSchema()
 
@@ -18,6 +19,7 @@ messages = {
 
 class AuthController:
     @staticmethod
+    @safe_controller
     def register(data):
         errors = user_schema.validate(data)
         if errors:
@@ -48,6 +50,7 @@ class AuthController:
         return {"message": messages["User registered successfully"]}, 201
 
     @staticmethod
+    @safe_controller
     def login(data):
         user = User.query.filter_by(email=data["email"]).first()
 

@@ -1,8 +1,10 @@
 from flask import g, request
+from marshmallow import ValidationError
 from app import db
-from app.models import Appointment
+from app.models import Appointment, AppointmentService
 from app.models.user import RoleEnum
 from app.schemas import AppointmentSchema
+from app.utils import safe_controller
 
 appointment_schema = AppointmentSchema()
 appointments_schema = AppointmentSchema(many=True)
@@ -17,6 +19,7 @@ message_translations = {
 
 class AppointmentController:
     @staticmethod
+    @safe_controller
     def get_appointments():
         MAX_LIMIT = 50
         limit = min(request.args.get("limit", 10, type=int), MAX_LIMIT)
@@ -45,43 +48,56 @@ class AppointmentController:
         return appointments_schema.dump(appointments), 200
 
     @staticmethod
+    @safe_controller
     def get_appointment(appointment_id):
         appointment = Appointment.query.get_or_404(appointment_id)
         return appointment_schema.dump(appointment), 200
 
     @staticmethod
+    @safe_controller
     def create_appointment():
         data = request.get_json()
+        data["user_id"] = g.current_user
+
         errors = appointment_schema.validate(data)
         if errors:
             return errors, 400
 
-        appointment = appointment_schema.load(data)
+        try:
+            appointment = appointment_schema.load(data)
+        except ValidationError as err:
+            return {"errors": err.messages}, 400
+
         db.session.add(appointment)
         db.session.commit()
-
         return appointment_schema.dump(appointment), 201
 
     @staticmethod
-    def assign_appointment(appointment_id):
-        data = request.get_json()
-        appointment = Appointment.query.get_or_404(appointment_id)
+    @safe_controller
+    def assign_services_to_employee(appointment_id):
+        # Obtener todos los servicios de la cita
+        services = AppointmentService.query.filter_by(appointment_id=appointment_id).all()
 
-        if "employee_id" not in data:
-            return {"message": message_translations["Missing employee_id"]}, 400
+        if not services:
+            return {"message": "Appointment or services not found"}, 404
 
-        appointment.employee_id = data["employee_id"]
+        already_assigned = [s for s in services if s.employee_id is not None]
+        if already_assigned:
+            return {"message": "Some or all services are already assigned"}, 400
+
+        # Asignar al empleado actual
+        for service in services:
+            service.employee_id = g.current_user
+
         db.session.commit()
+        
+        return {"message": "Services assigned successfully"}, 200
 
-        # Placeholder for email notification
-        # employee = User.query.get(data['employee_id'])
-        # if employee:
-        #     send_email(employee.email, "New Appointment Assigned", f"You have been assigned appointment {appointment_id}.")
-
-        return appointment_schema.dump(appointment), 200
 
     @staticmethod
-    def update_appointment_status(appointment_id, data):
+    @safe_controller
+    def update_appointment_status(appointment_id):
+        data = request.get_json()
         appointment = Appointment.query.get_or_404(appointment_id)
 
         status_translations = {
@@ -99,7 +115,9 @@ class AppointmentController:
         return appointment_schema.dump(appointment), 200
 
     @staticmethod
+    @safe_controller
     def update_appointment(appointment_id, data):
+        data = request.get_json()
         appointment = Appointment.query.get_or_404(appointment_id)
 
         if data.get("status") == "cancelada":

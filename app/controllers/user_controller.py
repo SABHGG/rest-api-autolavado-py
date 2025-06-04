@@ -1,10 +1,11 @@
 from flask import g
 from app import db
 from app.models.user import User, RoleEnum
-from app.schemas import UserSchema
+from app.schemas import UserSchema, UserAdminSchema
+from app.utils import safe_controller
 
 user_schema = UserSchema()
-users_schema = UserSchema(many=True)
+users_schema = UserAdminSchema(many=True)
 
 messages = {
     "Username or email already exists": "El nombre de usuario o correo electrónico ya existe",
@@ -19,6 +20,7 @@ messages = {
 
 class UserController:
     @staticmethod
+    @safe_controller
     def create_user(data):
         try:
             errors = user_schema.validate(data)
@@ -52,11 +54,13 @@ class UserController:
             return {"message": "Algo salio mal"}, 500
 
     @staticmethod
+    @safe_controller
     def get_all_users():
         users = User.query.all()
         return users_schema.dump(users)
 
     @staticmethod
+    @safe_controller
     def get_user():
         user_id = g.current_user
         if not user_id:
@@ -66,6 +70,7 @@ class UserController:
         return user_schema.dump(user)
 
     @staticmethod
+    @safe_controller
     def update_user(user_id, data):
         user = User.query.get(user_id)
         if not user:
@@ -106,6 +111,7 @@ class UserController:
         return user_schema.dump(user)
 
     @staticmethod
+    @safe_controller
     def delete_user(user_id):
         user = User.query.get(user_id)
         if not user:
